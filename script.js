@@ -31,10 +31,29 @@ function showError(message) {
   errorMessage.textContent = message;
 }
 
+function getVisibleNotes() {
+  const term = searchInput.value.trim().toLowerCase();
+  return notes.filter((note) => note.text.toLowerCase().includes(term));
+}
+
+function updateCount(visible) {
+  if (notes.length === 0) {
+    noteCount.textContent = "You have no notes yet.";
+  } else if (visible === 0) {
+    noteCount.textContent = "No notes match your search.";
+  } else if (visible === 1) {
+    noteCount.textContent = "1 note";
+  } else {
+    noteCount.textContent = `${visible} notes`;
+  }
+}
+
 function render() {
   notesList.textContent = "";
 
-  for (const note of notes) {
+    const visibleNotes = getVisibleNotes();
+
+  for (const note of visibleNotes)  {
     const li = document.createElement("li");
     li.className = `note ${note.category}`;
 
@@ -53,6 +72,7 @@ function render() {
 
     li.append(text, meta, deleteBtn);
     notesList.append(li);
+    updateCount(visibleNotes.length);
   }
 }
 
@@ -95,5 +115,7 @@ form.addEventListener("submit", (event) => {
   noteInput.focus();
   render();
 });
+
+searchInput.addEventListener("input", render);
 
 render();
