@@ -7,7 +7,25 @@ const noteCount = document.querySelector("#note-count");
 const errorMessage = document.querySelector("#error-message");
 
 const MAX_LENGTH = 200;
-let notes = [];
+const STORAGE_KEY = "quicknotes";
+
+function saveNotes() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+}
+
+function loadNotes() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (!saved) {
+    return [];
+  }
+  try {
+    return JSON.parse(saved);
+  } catch {
+    return [];
+  }
+}
+
+let notes = loadNotes();
 
 function showError(message) {
   errorMessage.textContent = message;
@@ -38,10 +56,15 @@ function render() {
   }
 }
 
+saveNotes();
+
 function deleteNote(id) {
   notes = notes.filter((note) => note.id !== id);
+  saveNotes();
   render();
 }
+
+saveNotes();
 
 form.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -56,6 +79,8 @@ form.addEventListener("submit", (event) => {
     return;
   }
 
+  saveNotes();
+
   showError("");
   notes.unshift({
     id: Date.now(),
@@ -63,6 +88,8 @@ form.addEventListener("submit", (event) => {
     category: categorySelect.value,
     createdAt: new Date().toISOString(),
   });
+
+  saveNotes();
 
   noteInput.value = "";
   noteInput.focus();
